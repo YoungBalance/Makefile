@@ -16,28 +16,29 @@
 
 # 定义 main 目标：由 main.o、input.o 和 calcu.o 三个依赖文件链接生成
 # 命令使用 gcc 链接器将目标文件合并为可执行文件 main
-main: main.o input.o calcu.o
-	gcc -o main main.o input.o calcu.o
 
-# 定义 main.o 目标：由 main.c 源文件编译生成
-# 命令使用 gcc 编译器以编译模式 (-c) 生成目标文件
-main.o: main.c
-	gcc -c main.c
+# 变量的引用方法是“$(变量名)”，
+# 	"="  赋值：变量的真实值取决于它所引用的变量的最后一次有效值
+#	":=" 赋值：使用最初已经定义好的
+#   "?=" 赋值：
+#	变量追加“+=”
+objects = main.o input.o calcu.o
+main: $(objects)
+	gcc -o main $(objects)
 
-# 定义 input.o 目标：由 input.c 源文件编译生成
-# 命令同上，生成 input.o 目标文件
-input.o: input.c
-	gcc -c input.c
-
-# 定义 calcu.o 目标：由 calcu.c 源文件编译生成
-# 命令同上，生成 calcu.o 目标文件
-calcu.o: calcu.c
-	gcc -c calcu.c
+# “%”表示长度任意的非空字符串，比如“%.c”就是所有的以.c 结尾的文件，
+# 类似与通配符，a.%.c 就表示以 a.开头，以.c 结束的所有文件。
+# "$<": 依赖文件集合中的第一个文件，如果依赖文件是以模式(即“%”)定义的，那么“$<”就是符合模式的一系列的文件集合
+%.o : %.c
+	gcc -c $<c
 
 # 定义 clean 伪目标：用于清理编译生成的文件
 # 第一个命令删除所有 .o 目标文件
 # 第二个命令删除最终生成的可执行文件 main
 # Windows 系统没有 rm 命令，需要使用 del 代替
+# 将 clean 声明为伪目标,声明 clean 为伪目标以后不管当前目录下是否存在名
+# 为“clean”的文件，输入“make clean”的话规则后面的 rm 命令都会执行
+.PHONY : clean
 clean:
 	del *.o  
 	del main.exe
